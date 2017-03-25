@@ -2,20 +2,55 @@
 # -*- coding: utf-8 -*-
 
 """
-===================
-PyNeurActiv library
-===================
+===================================
+Neuronal activity package (SENeC-I)
+===================================
 
-Library providing tools to study the activity of neuronal cultures.
+PyNeurActv pacakage to study the simulated activity of neural networks.
+This package is part of the broader SENeC initiative for the study of neuronal
+cultures and devices.
 
-It contains simple tools for the analysis of spike data, data loading and
-plotting functions based on [neo](), and theoretical models used in published
-papers.
 
 Content
 =======
+
+`analysis`
+	Tools to analyze data related to neuronal activity, especially in link
+    with simulations involving [NEST][nest] or [NNGT][nngt].
+`io`
+    Input/output functions to load and plot, sometimes based on [Neo][neo].
+`lib`
+    Generic tools used throughout the modules.
+`models`
+    Main module containing theoretical and numerical models to predict the
+    activity of neuronal populations.
 """
 
-import analysis
-import io
-import models
+from __future__ import absolute_import
+import sys
+
+
+# ----------------------- #
+# Requirements and config #
+# ----------------------- #
+
+# Python > 2.6
+assert sys.hexversion > 0x02060000, "PyNeurActiv requires Python > 2.6"
+
+
+# ------- #
+# Modules #
+# ------- #
+
+from . import analysis
+from . import io
+from . import lib
+from . import models
+
+
+__all__ = [
+    "analysis",
+    "io",
+    "lib",
+    "models",
+]

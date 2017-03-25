@@ -10,7 +10,7 @@ import numpy as np
 from .load_data import *
 
 
-__all__ = [ 'plot_neo', 'plot_abf', 'plot_fig', 'plot_mat_yaron' ]
+__all__ = [ 'plot_neo', 'plot_abf', 'plot_fig' ]
 
 
 
@@ -59,16 +59,6 @@ def plot_fig1(filename, show=True):
     if show:
         plt.show()
 
-def plot_mat_yaron(filename, show=True, plot_rate=True):
-    fig, ax1, ax2 = None, None, None
-    if plot_rate:
-        fig, (ax1, ax2) = plt.subplots(2)
-    else:
-        fig, ax1 = plt.subplots(1)
-    x, y, electrode, rate = load_mat_yaron(filename)
-    ax1.scatter(x, y)
-    if plot_rate:
-        ax2.scatter(electrode, rate)
 
 def plot_fig(filename, show=True):
     ''' Plot a Matlab .fig '''
