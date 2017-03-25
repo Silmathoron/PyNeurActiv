@@ -43,14 +43,14 @@ assert sys.hexversion > 0x02060000, "PyNeurActiv requires Python > 2.6"
 # ------- #
 
 from . import analysis
-from . import io
+from . import data_io
 from . import lib
 from . import models
 
 
 __all__ = [
     "analysis",
-    "io",
+    "data_io",
     "lib",
     "models",
 ]

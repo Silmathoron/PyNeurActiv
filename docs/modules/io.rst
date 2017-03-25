@@ -2,4 +2,4 @@
 Input/output module
 ===================
 
-.. automodule:: pyneuractiv.io
+.. automodule:: pyneuractiv.data_io
