@@ -137,9 +137,6 @@ Relevant functions
         self.DT_dim = self._param["Delta_T"]
         self.Vt_dim = self._param["V_th"]
         self.dimW = self._param["g_L"]*self._param["Delta_T"]
-        model_name = str(parameters["model"])
-        if model_name.find("aeif") == -1:
-            raise RuntimeError("Model should be of type 'aeif_*' neurons.")
         dimensionless_prop = _plib.adim_dict(self._param)
         self._adim_params = dimensionless_prop
         self._generate_values(dimensionless_prop)

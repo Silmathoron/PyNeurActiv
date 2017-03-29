@@ -43,7 +43,7 @@ def redim(var, value):
 def adim_dict(di):
     '''
     Return a dimensionless dictionary from a dictionary of dimensioned neuronal
-    parameters for the AEIF model.
+    parameters for the AEIF model with post-synaptic currents.
     '''
     VT = di["V_th"]
     DT = di["Delta_T"]
@@ -51,19 +51,12 @@ def adim_dict(di):
     tm = di.get("tau_m", -1)
     if tm == -1:
         tm = di["C_m"]/gL
-    model = di.get("model")
-    if model is None:
-         model = di.get("neuron_model")
-    model = str(model)
     di_new = di.copy()
     for key, val in iter(di.items()):
         if key == "Delta_T":
             di_new[key] = (val-VT)/DT
         elif key == "weight":
-            if model.find("psc") != -1:
-                di_new[key] /= (gL*DT)
-            else:
-                di_new[key] /= gL
+            di_new[key] /= (gL*DT)
         elif key == "delay":
             di_new[key] /= tm
         elif key == "a":
@@ -91,16 +84,12 @@ def redim_dict(di, di_dim):
     tm = di_dim.get("tau_m", -1)
     if tm == -1:
         tm = di_dim["C_m"]/gL
-    model = str(di_dim["model"])
     di_new = di.copy()
     for key, val in iter(di.items()):
         if key == "Delta_T":
             di_new[key] = val*DT+VT
         elif key == "weight":
-            if model.find("psc") != -1:
-                di_new[key] *= (gL*DT)
-            else:
-                di_new[key] *= gL
+            di_new[key] *= (gL*DT)
         elif key in ("delay", "IBI", "ISI", "burst_duration"):
             di_new[key] *= tm
         elif key == "a":

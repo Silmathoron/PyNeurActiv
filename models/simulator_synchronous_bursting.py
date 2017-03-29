@@ -8,7 +8,7 @@ from nngt.simulation import (make_nest_network, monitor_nodes, plot_activity,
 
 from collections import namedtuple
 from six import add_metaclass
-from weakref import ref
+from weakref import proxy
 import warnings
 
 import numpy as np
@@ -75,18 +75,28 @@ class Simulator_SynchroBurst:
         '''
         # get the neurons
         num_neurons = network.node_nb()
-        # check whether the network has been converted to NEST, else convert
+        # check whether the network has been converted to NEST
         gids = network.nest_gid
         if gids is None:
+            # else reset kernel, set resolution and omp, then create network
+            nest.ResetKernel()
+            nest.SetKernelStatus({"local_num_threads": omp})
+            np.random.seed()
+            msd = int(100000*np.random.random())
+            nest.SetKernelStatus({'grng_seed': msd})
+            nest.SetKernelStatus(
+                {'rng_seeds': range(msd + 1, msd + omp + 1)})
+            if resolution is not None:
+                nest.SetKernelStatus({'resolution': resolution})
+                self.resolution = resolution
             gids = network.to_nest()
         di_param = nest.GetStatus((gids[0],))[0]
         di_param["weight"] = np.average(network.get_weights())
         di_param["delay"] = np.average(network.get_delays())
         sim = cls(num_neurons, di_param, resolution=resolution,
                   monitor_rate=monitor_rate, mean_field=mean_field, omp=omp,
-                  create_network=False)
-        sim.gids = gids
-        sim.network = weakref.proxy(network)
+                  create_network=False, gids=gids)
+        sim.network = proxy(network)
         return sim
 
     @classmethod
@@ -127,8 +137,7 @@ class Simulator_SynchroBurst:
         di_param["delay"] = delay / num_edges
         sim = cls(num_neurons, di_param, resolution=resolution,
                   monitor_rate=monitor_rate, mean_field=mean_field, omp=omp,
-                  create_network=False)
-        sim.gids = gids
+                  create_network=False, gids=gids)
         return sim
 
     def __init__(self, num_neurons, parameters, resolution=None,
@@ -164,31 +173,37 @@ class Simulator_SynchroBurst:
         :class:`~pyneuractiv.models.Fardet2017_SynchroBurst`
         '''
         self.num_neurons = num_neurons
-        self._params = parameters
+        self._params = parameters.copy()
         self.network = None
         self.simtime = None
         self.simulated = False
         self.ignore_errors = ignore_errors
         # set NEST and network
-        nest.ResetKernel()
-        if nest.GetKernelStatus('local_num_threads') != omp:
-            if nest.GetKernelStatus('network_size') == 1:
+        if kwargs.get("create_network", True):
+            nest.ResetKernel()
+        if nest.GetKernelStatus('network_size') == 1:
+            if nest.GetKernelStatus('local_num_threads') != omp:
                 nest.SetKernelStatus({"local_num_threads": omp})
                 np.random.seed()
                 msd = int(100000*np.random.random())
                 nest.SetKernelStatus({'grng_seed': msd})
                 nest.SetKernelStatus(
                     {'rng_seeds': range(msd + 1, msd + omp + 1)})
+            if resolution is not None:
+                nest.SetKernelStatus({'resolution': resolution})
+                self.resolution = resolution
             else:
-                print("Could not change OMP number: existing nodes in NEST")
-        if resolution is not None:
-            nest.SetKernelStatus({'resolution': resolution})
-            self.resolution = resolution
+                self.resolution = nest.GetKernelStatus('resolution')
         else:
+            print("Could not change OMP number and resolution: existing nodes "
+                  "in NEST.")
             self.resolution = nest.GetKernelStatus('resolution')
-        nest.SetKernelStatus({"resolution": self.resolution})
         if kwargs.get("create_network", True):
             self._make_network()
+        else:
+            assert "gids" in kwargs, "`gids` required if `create_network` " \
+                                     + "is False."
+            self.gids = kwargs["gids"]
         # monitoring
         self.mf = mean_field
         recordables = self._monitor(monitor_rate)
@@ -417,10 +432,9 @@ class Simulator_SynchroBurst:
 
     def _make_network(self):
         ''' Create network in NEST '''
-        n_param = self._params.copy()
-        del n_param["weight"]
-        del n_param["avg_deg"]
-        del n_param["delay"]
+        default_params = nest.GetDefaults("aeif_psc_alpha")
+        n_param = {
+            k: v for k, v in self._params.items() if k in default_params}
         self.gids = nest.Create(
             "aeif_psc_alpha", self.num_neurons, params=n_param)
         conn_spec = {'rule': 'fixed_indegree',

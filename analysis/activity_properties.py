@@ -107,6 +107,37 @@ def get_spikes(recorder=None, spike_times=None, senders=None):
     return ssp.csr_matrix((spike_times, (row_idx, col_idx)))
 
 
+def get_b2(recorder=None, spike_times=None, senders=None):
+    '''
+    Return an array containing the B2 coefficient for each neuron, as defined
+    in van Elburg, van Ooyen, 2004
+    (http://doi.org/10.1016/j.neucom.2004.01.086).
+
+    Parameters
+    ----------
+    recorder : tuple, optional (default: None)
+        Tuple of NEST gids, where the first one should point to the
+        spike_detector which recorded the spikes.
+    spike_times : array-like, optional (default: None)
+        If `recorder` is not provided, the spikes' data can be passed directly
+        through their `spike_times` and the associated `senders`.
+    senders : array-like, optional (default: None)
+        `senders[i]` corresponds to the neuron which fired at `spike_times[i]`.
+
+    Note
+    ----
+    This function supposes that neuron GIDs for a continuous set of integers.
+    If no arguments are passed to the function, the first spike_recorder
+    available in NEST will be used.
+
+    Returns
+    -------
+    b2 : :class:`numpy.ndarray`
+        B2 coefficients (one per neuron).
+    '''
+    spikes = get_spikes(recorder, spike_times, senders)
+
+
 # ------------------------------------- #
 # Analyze properties from spike trains  #
 # ------------------------------------- #
