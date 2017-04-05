@@ -30,6 +30,7 @@ def get_data(recorders):
     data = nest.GetStatus(recorders[0])[0]["events"]
     spike_times = data["times"]
     senders = data["senders"]
+    time_var, data_var = [], []
     # variables
     if len(recorders) > 1:
         base_data2 = nest.GetStatus(recorders[1])
@@ -136,6 +137,17 @@ def get_b2(recorder=None, spike_times=None, senders=None):
         B2 coefficients (one per neuron).
     '''
     spikes = get_spikes(recorder, spike_times, senders)
+    num_neurons = spikes.shape[0]
+    b2 = np.zeros(num_neurons)
+    for i in range(num_neurons):
+        isi_i = np.diff(spikes[i].data)
+        isi2_i = isi_i[:-1] + isi_i[1:]
+        avg_isi = np.mean(isi_i)
+        if avg_isi != 0.:
+            b2[i] = (2*np.var(isi_i) - np.var(isi2_i)) / (2*avg_isi**2)
+        else:
+            b2[i] = np.inf
+    return b2
 
 
 # ------------------------------------- #
