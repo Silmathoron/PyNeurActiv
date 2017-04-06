@@ -37,6 +37,8 @@ import sys
 # Python > 2.6
 assert sys.hexversion > 0x02060000, "PyNeurActiv requires Python > 2.6"
 
+__version__ = "0.1.0"
+
 
 # ------- #
 # Modules #
