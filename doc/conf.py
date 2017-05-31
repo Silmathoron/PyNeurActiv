@@ -23,7 +23,7 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 sys.path.insert(0, os.path.abspath('../'))
 sys.path.append(os.path.abspath('.'))
 
-from pyneuractiv import __version__ as na_version
+from PyNeurActiv import __version__ as na_version
 
 # -- General configuration ------------------------------------------------
 
@@ -138,7 +138,7 @@ html_theme_options = {
     'navbar_links': [
         ("Modules", "py-modindex"),
         ("Index", "genindex"),
-        ("GitHub", "https://github.com/SENeC-Initiative/pyneuractiv", True),
+        ("GitHub", "https://github.com/SENeC-Initiative/PyNeurActiv", True),
     ],
 
     # Render the next and previous page links in navbar. (Default: true)
@@ -317,7 +317,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'pyneuractiv', u'PyNeuroActiv Documentation',
+    (master_doc, 'PyNeurActiv', u'PyNeuroActiv Documentation',
      [author], 1)
 ]
 

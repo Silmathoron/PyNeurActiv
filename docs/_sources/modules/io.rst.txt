@@ -1,1 +1,1 @@
-.. automodule:: pyneuractiv.data_io
+.. automodule:: PyNeurActiv.data_io

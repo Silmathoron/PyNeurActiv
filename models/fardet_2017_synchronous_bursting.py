@@ -12,8 +12,8 @@ from scipy.integrate import quad
 from scipy.optimize import brentq
 from scipy.special import lambertw
 
-from pyneuractiv.analysis import find_idx_nearest
-import pyneuractiv.lib as _plib
+from ..analysis import find_idx_nearest
+from .. import lib as _plib
 
 
 @add_metaclass(_plib.ResNames)

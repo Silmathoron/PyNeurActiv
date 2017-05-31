@@ -1,1 +1,1 @@
-.. automodule:: pyneuractiv.models
+.. automodule:: PyNeurActiv.models

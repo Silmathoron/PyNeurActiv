@@ -1,1 +1,1 @@
-.. automodule:: pyneuractiv.analysis
+.. automodule:: PyNeurActiv.analysis

@@ -1,1 +1,1 @@
-.. automodule:: pyneuractiv.lib
+.. automodule:: PyNeurActiv.lib
