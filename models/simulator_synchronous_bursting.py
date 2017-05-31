@@ -16,10 +16,9 @@ import matplotlib.pyplot as plt
 
 import nest
 
-import pyneuractiv.lib as _plib
-from pyneuractiv.analysis import (activity_types, find_idx_nearest, get_data,
-                                  interburst_properties, spiking_properties)
-
+from .. import lib as _plib
+from ..analysis import (activity_types, find_idx_nearest, get_data,
+                        interburst_properties, spiking_properties)
 
 # ------------------ #
 # Check NEST version #
@@ -70,8 +69,8 @@ class Simulator_SynchroBurst:
 
         See also
         --------
-        :func:`~pyneuractiv.Simulator2017_SynchroBurst.__init__`,
-        :func:`~pyneuractiv.Simulator2017_SynchroBurst.from_nest_network`.
+        :func:`~PyNeurActiv.Simulator2017_SynchroBurst.__init__`,
+        :func:`~PyNeurActiv.Simulator2017_SynchroBurst.from_nest_network`.
         '''
         # get the neurons
         num_neurons = network.node_nb()
@@ -88,7 +87,6 @@ class Simulator_SynchroBurst:
                 {'rng_seeds': range(msd + 1, msd + omp + 1)})
             if resolution is not None:
                 nest.SetKernelStatus({'resolution': resolution})
-                self.resolution = resolution
             gids = network.to_nest()
         di_param = nest.GetStatus((gids[0],))[0]
         di_param["weight"] = np.average(network.get_weights())
@@ -116,8 +114,8 @@ class Simulator_SynchroBurst:
 
         See also
         --------
-        :func:`~pyneuractiv.Simulator2017_SynchroBurst.__init__`,
-        :func:`~pyneuractiv.Simulator2017_SynchroBurst.from_nngt_network`.
+        :func:`~PyNeurActiv.Simulator2017_SynchroBurst.__init__`,
+        :func:`~PyNeurActiv.Simulator2017_SynchroBurst.from_nngt_network`.
         '''
         # get the neurons
         neurons = nest.GetNodes([0], properties={'element_type': 'neuron'})[0]
@@ -170,7 +168,7 @@ class Simulator_SynchroBurst:
 
         See also
         --------
-        :class:`~pyneuractiv.models.Fardet2017_SynchroBurst`
+        :class:`~PyNeurActiv.models.Fardet2017_SynchroBurst`
         '''
         self.num_neurons = num_neurons
         self._params = parameters.copy()

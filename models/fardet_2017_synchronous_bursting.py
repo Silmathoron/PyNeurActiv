@@ -12,8 +12,8 @@ from scipy.integrate import quad
 from scipy.optimize import brentq
 from scipy.special import lambertw
 
-from pyneuractiv.analysis import find_idx_nearest
-import pyneuractiv.lib as _plib
+from ..analysis import find_idx_nearest
+from .. import lib as _plib
 
 
 @add_metaclass(_plib.ResNames)
@@ -276,7 +276,7 @@ Relevant functions
 
         Returns
         -------
-        ts, Vs, ws, stimes : :class:`numpy.array`s
+        ts, Vs, ws, stimes : :class:`numpy.array` objects
             time, voltage, and adaptation variables, as well as the spike
             times.
         '''
@@ -768,6 +768,7 @@ Relevant functions
         potential.
         This value is obtained as the limit where $\dot{w} = -\dot{V}$ and
         follows:
+
         $$w = \frac{1}{1+\tau_w} \left[ (a-\tau_w)(V-E_L)+\tau_w I_e \right]$$
         '''
         if not adim:
@@ -781,6 +782,7 @@ Relevant functions
         function of the potential.
         This value is obtained as the limit where $\dot{w} = -\dot{V}$ and
         follows:
+
         $$w = \frac{1}{1+\tau_w} \left[ (a-\tau_w)(V-E_L)+\tau_w I_e \right]$$
         '''
         if not adim:
