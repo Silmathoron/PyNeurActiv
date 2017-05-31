@@ -6,7 +6,7 @@
 Neuronal activity package (SENeC-I)
 ===================================
 
-PyNeurActv pacakage to study the simulated activity of neural networks.
+PyNeurActiv pacakage to study the simulated activity of neural networks.
 This package is part of the broader SENeC initiative for the study of neuronal
 cultures and devices.
 
@@ -38,7 +38,6 @@ import sys
 assert sys.hexversion > 0x02060000, "PyNeurActiv requires Python > 2.6"
 
 __version__ = "0.1.0"
-
 
 # ------- #
 # Modules #

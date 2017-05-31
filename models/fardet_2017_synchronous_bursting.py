@@ -768,7 +768,7 @@ Relevant functions
         potential.
         This value is obtained as the limit where $\dot{w} = -\dot{V}$ and
         follows:
-        
+
         $$w = \frac{1}{1+\tau_w} \left[ (a-\tau_w)(V-E_L)+\tau_w I_e \right]$$
         '''
         if not adim:

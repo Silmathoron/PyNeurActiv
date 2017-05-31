@@ -20,7 +20,6 @@ from .. import lib as _plib
 from ..analysis import (activity_types, find_idx_nearest, get_data,
                         interburst_properties, spiking_properties)
 
-
 # ------------------ #
 # Check NEST version #
 # ------------------ #

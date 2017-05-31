@@ -20,7 +20,14 @@ Open a terminal in the folder of your choice, then type
     cd PyNeurActiv
     export PYTHONPATH=$(pwd):$PYTHONPATH
 
+otherwise you can also install it globally with ``pip``
+
+    git clone https://github.com/SENeC-Initiative/PyNeurActiv.git
+    cd PyNeurActiv
+    sudo pip install -e .
+
 The above commands will temporarily set your `$PYTHONPATH`.
 Add the appropriate path in your `.bashrc` to set the package permanently.
 
-Package can then be imported in python using ``import PyNeurActiv as pna``.
+Package can then be imported in python using ``import PyNeurActiv``
+or for short ``import PyNeurActiv as pna``.
