@@ -55,6 +55,8 @@ if not _log.handlers:
 # Modules #
 # ------- #
 
+from .analysis import Recorder
+
 from . import analysis
 from . import data_io
 from . import lib
