@@ -1,5 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# This file is part of the PyNeurActiv project, which aims at providing tools
+# to study and model the activity of neuronal cultures.
+# Copyright (C) 2017 SENeC Initiative
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """ Calculate the properties from a simulation """
 
@@ -17,7 +34,7 @@ import matplotlib.pyplot as plt
 import nest
 
 from .. import lib as _plib
-from ..analysis import (activity_types, find_idx_nearest, get_data,
+from ..analysis import (activity_types, find_idx_nearest, data_from_nest,
                         interburst_properties, spiking_properties)
 
 # ------------------ #
@@ -275,8 +292,8 @@ class Simulator_SynchroBurst:
         else:
             raise RuntimeError("Parameters lead to stable equilibrium.")
         if not self.simulated:
-            self.phases = {"bursting": [], "mixed": [], "quiescent": [],
-                           "localized": []}
+            self.phases = {"network_burst": [], "mixed": [], "quiescent": [],
+                           "local_burst": []}
 
     def compute_properties(self, simtime=None, resimulate=False, mbis=10.,
                            steady_state=0, adim=False):
@@ -287,11 +304,11 @@ class Simulator_SynchroBurst:
             assert hasattr(self, 'phases'), ("No simulation run, please " +
                                              "enter a value for `simtime`.")
         # get data
-        spike_times, senders, time_var, data_var = get_data(self.recorders)
+        spike_times, senders, time_var, data_var = data_from_nest(self.recorders)
         avg_var = data_var if self.mf else {key: np.average(val, axis=0)
                                             for key, val in data_var.items()}
         # get bursts
-        lst_bursts = self.phases["bursting"]
+        lst_bursts = self.phases["network_burst"]
         num_bursts = len(lst_bursts[steady_state:])
         # compute
         if num_bursts:
@@ -299,7 +316,7 @@ class Simulator_SynchroBurst:
             last_burst_end = lst_bursts[-1][-1]
             ends_with_burst = True
             for key, val in self.phases.items():
-                if key != "bursting" and val:
+                if key != "network_burst" and val:
                     ends_with_burst *= (last_burst_end > val[-1][-1])
             if ends_with_burst:
                 lst_bursts.pop()
@@ -371,12 +388,12 @@ class Simulator_SynchroBurst:
         '''
         if simtime != self.simtime or not self.simulated:
             self.simulate(simtime, mbis=mbis, show=show_raster)
-        (_, _, ts, data_var), avg_var = get_data(self.recorders), {}
+        (_, _, ts, data_var), avg_var = data_from_nest(self.recorders), {}
         for key, val in data_var.items():
             avg_var[key] = (val[0] / self.num_neurons if self.mf
                             else np.average(val, axis=0))
         Vs, ws = avg_var["V_m"], avg_var["w"]
-        lst_bursts = self.phases["bursting"]
+        lst_bursts = self.phases["network_burst"]
         if start_burst is not None:
             if len(lst_bursts) >= start_burst:
                 start_time = (lst_bursts[start_burst][-1]

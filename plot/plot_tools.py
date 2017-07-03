@@ -18,14 +18,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-""" `result_names` class property """
+""" Tools for plotting module """
+
+from itertools import cycle
+
+from matplotlib.markers import MarkerStyle
 
 
-class ResNames(type):
-    
-    ''' Metaclass for class property in models '''
+# markers list
 
-    @property
-    def result_names(cls):
-        ''' Names of the values returned by the model '''
-        return cls._res_names
+_markers = cycle(MarkerStyle().filled_markers)
+

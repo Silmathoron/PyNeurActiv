@@ -18,14 +18,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-""" `result_names` class property """
+""" 
+Functions for plotting activity.
 
 
-class ResNames(type):
-    
-    ''' Metaclass for class property in models '''
+Content
+=======
+"""
 
-    @property
-    def result_names(cls):
-        ''' Names of the values returned by the model '''
-        return cls._res_names
+import warnings as _warn
+_warn.filterwarnings("ignore", module="matplotlib")
+
+# module import
+
+from .raster import raster_plot
+
+
+__all__ = [
+    "raster_plot",
+]
