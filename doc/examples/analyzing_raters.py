@@ -48,9 +48,7 @@ gids = net.to_nest()
 
 ''' Record from it '''
 
-rec_param = [{'to_file': True}]
-
-recorder, recorded = monitor_nodes(gids, params=rec_param, network=net)
+recorder, recorded = monitor_nodes(gids, network=net)
 nest.Simulate(2000.)
 
 activity = pna.analysis.raster_analysis(recorder[0], limits=[300., np.inf])
