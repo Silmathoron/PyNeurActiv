@@ -252,7 +252,7 @@ class ActivityRecord(RecordParent):
             sorter[set_neurons] = sorted_idx
             return sorter[neurons]
 
-    def properties(self, which='average'):
+    def properties(self, which='both'):
         '''
         Returns the properties of the activity.
         Contains the following entries:
@@ -532,8 +532,8 @@ def raster_analysis(raster, collective=0.1, limits=None, network=None,
     data = _get_data(raster)
     if limits is None:
         limits = [np.min(data[:, 1]), np.max(data[:, 1])]
-    start = np.argwhere(data[:, 1] > limits[0])[0][0]
-    stop = np.argwhere(data[:, 1] < limits[1])[-1][0]
+    start = np.argwhere(data[:, 1] >= limits[0])[0][0]
+    stop = np.argwhere(data[:, 1] <= limits[1])[-1][0] + 1
     # container
     activity = {
         sender: data[start:stop, 0].astype(int),

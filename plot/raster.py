@@ -44,7 +44,7 @@ from ..lib import nonstring_container
 def raster_plot(activity, network=None, limits=None, sort=None, normalize=1.,
                 decimate=None, hist=True, mark_network_bursts=True,
                 mark_spike_patterns=True, title=None, axis=None, label=None,
-                markers=None, show=True):
+                markers=None, show=False):
     '''
     Plot the monitored activity.
     
@@ -154,24 +154,19 @@ def raster_plot(activity, network=None, limits=None, sort=None, normalize=1.,
         for c, ev, m in zip(colors, range(num_events), markers):
             burst = np.isclose(descriptor1, ev + 1)
             interburst = np.isclose(descriptor2, ev + 1)
-            # burst (all spikes if no bursts)
             bb_idx = np.where(iburst & burst)[0]
             bs_idx = np.where(~iburst & burst)[0]
             axis.plot(times[bb_idx], sorter[senders[bb_idx]],
                       ls='', marker=m, c=cburst)
-                      #~ ls='', marker=m, c=c)
             axis.plot(times[bs_idx], sorter[senders[bs_idx]],
                       ls='', marker=m, c=cspike)
-                      #~ ls='', marker=m, c=c)
             # interburst (empty if no bursts)
             ib_idx = np.where(iburst & interburst)[0]
             is_idx = np.where(~iburst & interburst)[0]
             axis.plot(times[ib_idx], sorter[senders[ib_idx]],
                       ls='', marker=m, c=cburst, fillstyle='none')
-                      #~ ls='', marker=m, c=c, fillstyle='none')
             axis.plot(times[is_idx], sorter[senders[is_idx]],
                       ls='', marker=m, c=cspike, fillstyle='none')
-                      #~ ls='', marker=m, c=c, fillstyle='none')
 
         axis.set_ylabel(ylabel)
         axis.set_xlabel(xlabel)
