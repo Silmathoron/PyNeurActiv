@@ -53,5 +53,5 @@ setup(
 
 
 # move back
-for fname in moved:
+for fname in move:
     os.rename(directory + fname, fname)
