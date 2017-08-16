@@ -8,8 +8,8 @@ setup(
         name = 'PyNeurActiv',
         version = '0.1.0',
         description = 'Python tools and theoretical models for neuronal activity analysis',
-        package_dir = {'PyNeurActiv': '../PyNeurActiv'},
-        packages = find_packages('.'),
+        package_dir = {'': '..'},
+        packages = find_packages('..'),
 
         # Requirements
         install_requires = ['numpy', 'scipy>=0.11', 'matplotlib'],
