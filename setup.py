@@ -16,7 +16,6 @@ setup(
         # Requirements
         install_requires = ['numpy', 'scipy>=0.11', 'matplotlib'],
         extras_require = {
-            'nngt': 'git+https://github.com/Silmathoron/NNGT.git',
             'pandas': 'pandas'
         },
 
