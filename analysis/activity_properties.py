@@ -89,7 +89,7 @@ class ActivityRecord(RecordParent):
 
         Parameters
         ----------
-        datadict : dict of 1D arrays
+        datadict : dict of 1D arrays of length N
             Dictionary containing at least the indices of the spiking entities
             as well as the spike times.
         spikes_data : 2-tuple, optional (default: ('neuron', 'time'))
@@ -107,7 +107,9 @@ class ActivityRecord(RecordParent):
             increases it)
         **kwargs : dict
             Keyword arguments. For instance the global firing rate can be
-            passed as the entry 'fr' associated to a (fr, time) tuple.
+            passed as the entry 'fr' associated to a (fr, time) tuple, or the
+            positions of the neurons can be passed through the 'x', 'y', 'z'
+            keywords as arrays of length N.
 
         Note
         ----
@@ -126,6 +128,12 @@ class ActivityRecord(RecordParent):
             self._fr_times = kwargs['fr'][1]
         else:
             self._fr, self._fr_times = None, None
+        for pos in ('x', 'y', 'z'):
+            if pos in kwargs:
+                try:
+                    self[pos] = kwargs[pos].values
+                except AttributeError:
+                    self[pos] = kwargs[pos]
         self._compute_properties()
 
     def __getstate__(self):
@@ -548,7 +556,7 @@ def raster_analysis(raster, collective=0.1, limits=None, network=None,
     num_neurons = len(neurons)             # number of neurons
 
     for neuron in neurons:
-        current_spikes = np.nonzero(activity[sender] == neuron)[0]
+        current_spikes = np.where(activity[sender] == neuron)[0]
         spike_positions.append(current_spikes)
         n = len(isi)
         isi.extend(np.diff(activity[time][current_spikes]))
@@ -576,7 +584,7 @@ def raster_analysis(raster, collective=0.1, limits=None, network=None,
         sigma = 0.1 * (np.max(isi) - np.min(isi)) if smooth is True else smooth
         bins = x
         sigma_in_step = max(sigma / step, 1.)
-        kernel_size = 5*sigma_in_step
+        kernel_size = int(5*sigma_in_step)
         counts = _smooth(interpolated, kernel_size, sigma_in_step)
 
     # maxima (T_min, ..., T_max) of the histogram
@@ -621,6 +629,7 @@ def raster_analysis(raster, collective=0.1, limits=None, network=None,
             activity['individual_burst'] = burst
             activity['individual_spike'] = interburst
     elif len(local_max) > 2:
+        print('cplx activ')
         logger.warning("Complex activity detected, manual processing will be "
                        "necessary.")
 
@@ -649,6 +658,10 @@ def raster_analysis(raster, collective=0.1, limits=None, network=None,
         fr, fr_time = firing_rate(
             activity[time], kernel_std=kernel_std)
         peaks = find_extrema(fr, 'max')
+        if len(peaks) > skip_bursts + 1:
+            peaks = peaks[skip_bursts:]
+        else:
+            peaks = []
 
         #~ plt.figure()
         #~ plt.plot(fr_time, fr)
@@ -660,9 +673,12 @@ def raster_analysis(raster, collective=0.1, limits=None, network=None,
             # test whether the fraction is reached between the two half_widths
             half_heights = np.where(fr < 0.5 * fr[p])[0]
             end = np.where(half_heights > p)[0]
+            before = np.where(half_heights < p)[0]
             # boundaries
             bstop = half_heights[end[0]] if len(end) else len(fr)
-            bstart = half_heights[end[0] - 1] if (len(end) and end[0]) else 0
+            if bstop == len(fr):
+                bstop -= 1
+            bstart = half_heights[before[- 1]] if len(before) else 0
             # check that no other peak lies between `p` and the boundaries
             if i > 0 and fr_time[bstart] < fr_time[peaks[i - 1]]:
                 bstart = int(np.ceil(0.5*(p + peaks[i - 1])))
@@ -709,9 +725,12 @@ def raster_analysis(raster, collective=0.1, limits=None, network=None,
         asort_rank = np.argsort(rank)
         sorter[spks_loc['neuron']] = np.argsort(asort_rank)
 
+    if network is not None and network.is_spatial():
+        pos = network.positions
+
     return ActivityRecord(
         activity, spikes_data=(sender, time), sort=sorter, phases=phases,
-        fr=(fr, fr_time))
+        fr=(fr, fr_time), **kwargs)
 
 
 def interburst_properties(bursts, current_index, steady_state, times,
@@ -792,7 +811,7 @@ def firing_rate(spike_times, kernel_center=0., kernel_std=30., resolution=None,
     if resolution is None:
         resolution = 0.1*kernel_std
     bin_std = kernel_std / float(resolution)
-    kernel_size = 2. * cut_gaussian * bin_std
+    kernel_size = int(2. * cut_gaussian * bin_std)
     # generate the times
     delta_T = resolution * 0.5 * kernel_size
     times = np.arange(np.min(spike_times) - delta_T,

@@ -50,7 +50,7 @@ class FitnessFunc(object):
     - prior(N, Ntot) : compute prior on N given a total number of points Ntot
     '''
 
-    def __init__(self, p0=0.05, gamma=None):
+    def __init__(self, p0=0.05, gamma=None, **kwargs):
         self.p0 = p0
         self.gamma = gamma
 
@@ -201,7 +201,7 @@ class PointMeasures(FitnessFunc):
             return 1.32 + 0.577 * np.log10(N)
 
 
-def bayesian_blocks(t, x=None, sigma=None, fitness='events', min_width=0.,
+def bayesian_blocks(t, data=None, sigma=None, fitness='events', min_width=0.,
                     max_width=np.inf, **kwargs):
     """
     Bayesian Blocks Implementation
@@ -212,11 +212,11 @@ def bayesian_blocks(t, x=None, sigma=None, fitness='events', min_width=0.,
     Parameters
     ----------
     t : array_like
-        data times (one dimensional, length N)
-    x : array_like (optional)
-        data values
+        Times (one dimensional, length N)
+    data : array_like (optional)
+        Data values
     sigma : array_like or float (optional)
-        data errors
+        Data errors
     fitness : str or object
         the fitness function to use.
         If a string, the following options are supported:
@@ -265,16 +265,16 @@ def bayesian_blocks(t, x=None, sigma=None, fitness='events', min_width=0.,
 
     >>> dt = 0.01
     >>> t = dt * np.arange(1000)
-    >>> x = np.zeros(len(t))
-    >>> x[np.random.randint(0, len(t), len(t) / 10)] = 1
+    >>> data = np.zeros(len(t))
+    >>> data[np.random.randint(0, len(t), len(t) / 10)] = 1
     >>> bins = bayesian_blocks(t, fitness='regular_events', dt=dt, gamma=0.9)
 
     Measured point data with errors:
 
     >>> t = 100 * np.random.random(100)
-    >>> x = np.exp(-0.5 * (t - 50) ** 2)
+    >>> data = np.exp(-0.5 * (t - 50) ** 2)
     >>> sigma = 0.1
-    >>> x_obs = np.random.normal(x, sigma)
+    >>> data_obs = np.random.normal(data, sigma)
     >>> bins = bayesian_blocks(t, fitness='measures')
 
     References
@@ -289,23 +289,25 @@ def bayesian_blocks(t, x=None, sigma=None, fitness='events', min_width=0.,
     """
     # validate array input
     t = np.asarray(t, dtype=float)
-    if x is not None:
-        x = np.asarray(x)
+    if data is not None:
+        data = np.asarray(data)
     if sigma is not None:
         sigma = np.asarray(sigma)
 
     # verify the fitness function
     if fitness == 'events':
-        if x is not None and np.any(x % 1 > 0):
-            raise ValueError("x must be integer counts for fitness='events'")
+        if data is not None and np.any(data % 1 > 0):
+            raise ValueError(
+                "`data` must be integer counts for fitness='events'")
         fitfunc = Events(**kwargs)
     elif fitness == 'regular_events':
-        if x is not None and (np.any(x % 1 > 0) or np.any(x > 1)):
-            raise ValueError("x must be 0 or 1 for fitness='regular_events'")
+        if data is not None and (np.any(data % 1 > 0) or np.any(data > 1)):
+            raise ValueError(
+                "`data` must be 0 or 1 for fitness='regular_events'")
         fitfunc = RegularEvents(**kwargs)
     elif fitness == 'measures':
-        if x is None:
-            raise ValueError("x must be specified for fitness='measures'")
+        if data is None:
+            raise ValueError("`data` must be specified for fitness='measures'")
         fitfunc = PointMeasures(**kwargs)
     else:
         if not (hasattr(fitness, 'args') and
@@ -320,51 +322,52 @@ def bayesian_blocks(t, x=None, sigma=None, fitness='events', min_width=0.,
     unq_t, unq_ind, unq_inv = np.unique(t, return_index=True,
                                         return_inverse=True)
 
-    # if x is not specified, x will be counts at each time
-    if x is None:
+    # if data is not specified, data will be counts at each time
+    if data is None:
         if sigma is not None:
-            raise ValueError("If sigma is specified, x must be specified")
+            raise ValueError(
+                "If `sigma` is specified, `data` must be specified")
 
         if len(unq_t) == len(t):
-            x = np.ones_like(t)
+            data = np.ones_like(t)
         else:
-            x = np.bincount(unq_inv)
+            data = np.bincount(unq_inv)
 
         t = unq_t
         sigma = 1
 
-    # if x is specified, then we need to sort t and x together
+    # if data is specified, then we need to sort t and data together
     else:
-        x = np.asarray(x)
+        data = np.asarray(data)
 
-        if len(t) != len(x):
-            raise ValueError("Size of t and x does not match")
+        if len(t) != len(data):
+            raise ValueError("Size of `t` and `data` does not match")
 
         if len(unq_t) != len(t):
             raise ValueError("Repeated values in t not supported when "
-                             "x is specified")
+                             "`data` is specified")
         t = unq_t
-        x = x[unq_ind]
+        data = data[unq_ind]
 
     # verify the given sigma value
     N = t.size
     if sigma is not None:
         sigma = np.asarray(sigma)
         if sigma.shape not in [(), (1,), (N,)]:
-            raise ValueError('sigma does not match the shape of x')
+            raise ValueError('`sigma` does not match the shape of `data`')
     else:
         sigma = 1
 
     # validate the input
-    fitfunc.validate_input(t, x, sigma)
+    fitfunc.validate_input(t, data, sigma)
 
     # compute values needed for computation, below
     if 'a_k' in fitfunc.args:
-        ak_raw = np.ones_like(x) / sigma / sigma
+        ak_raw = np.ones_like(data) / sigma / sigma
     if 'b_k' in fitfunc.args:
-        bk_raw = x / sigma / sigma
+        bk_raw = data / sigma / sigma
     if 'c_k' in fitfunc.args:
-        ck_raw = x * x / sigma / sigma
+        ck_raw = data * data / sigma / sigma
 
     # create length-(N + 1) array of cell edges
     edges = np.concatenate([t[:1],
@@ -391,7 +394,7 @@ def bayesian_blocks(t, x=None, sigma=None, fitness='events', min_width=0.,
 
         # N_k: number of elements in each block
         if 'N_k' in fitfunc.args:
-            kwds['N_k'] = np.cumsum(x[:R + 1][::-1])[::-1]
+            kwds['N_k'] = np.cumsum(data[:R + 1][::-1])[::-1]
 
         # a_k: eq. 31
         if 'a_k' in fitfunc.args:
