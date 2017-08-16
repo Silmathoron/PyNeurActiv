@@ -14,17 +14,19 @@ except OSError as e:
         raise
 
 
-# move everything
-ignore = (
-    'setup.py', 'doc', '.git', 'README.md', '.gitignore',
-    'PyNeurActiv', 'dist', 'build'
+# move important 
+move = (
+    '__init__.py',
+    'LICENSE',
+    'analysis',
+    'data_io',
+    'lib',
+    'models',
+    'plot',
 )
-moved = []
 
-for fname in os.listdir('.'):
-    if fname not in ignore:
-        moved.append(fname)
-        os.rename(fname, directory + fname)
+for fname in move:
+    os.rename(fname, directory + fname)
 
 
 # install
