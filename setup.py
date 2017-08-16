@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-import os
-import sys
 from setuptools import setup, find_packages
 
 
@@ -10,7 +8,7 @@ setup(
         name = 'PyNeurActiv',
         version = '0.1.0',
         description = 'Python tools and theoretical models for neuronal activity analysis',
-        package_dir = {'': '.'},
+        package_dir = {'PyNeurActiv': '../PyNeurActiv'},
         packages = find_packages('.'),
 
         # Requirements
